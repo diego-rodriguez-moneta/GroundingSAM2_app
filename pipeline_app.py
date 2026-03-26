@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-# =============================================================================
-# pipeline_app.py — Hybrid Local/RunPod Auto-Labeling Pipeline
-#
-# Usage:
-#   python3 pipeline_app.py                  # full pipeline
-#   python3 pipeline_app.py --extract-only   # only extract frames locally
-#   python3 pipeline_app.py --remote-only    # skip extraction, run remote only
-#   python3 pipeline_app.py --download-only  # skip everything, just download
-# =============================================================================
-
 import os
 import sys
 import time
@@ -45,9 +34,6 @@ from app_config import (
     PRODUCT_CLASS,
 )
 
-# =============================================================================
-# Helpers
-# =============================================================================
 
 def print_step(step: int, total: int, msg: str):
     print(f"\n{'='*60}")
@@ -64,9 +50,6 @@ def print_err(msg: str):
     print(f"  ✗ ERROR: {msg}")
 
 
-# =============================================================================
-# STEP 1 — Fetch videos from cloud storage (optional)
-# =============================================================================
 
 def fetch_videos_gdrive():
     """Download videos from a Google Drive folder."""
@@ -109,9 +92,6 @@ def fetch_videos_s3():
     print_ok(f"Downloaded {downloaded} videos from S3.")
 
 
-# =============================================================================
-# STEP 2 — Extract frames locally
-# =============================================================================
 
 def extract_frames(videos_dir: str, output_dir: str) -> int:
     """
@@ -175,9 +155,6 @@ def extract_frames(videos_dir: str, output_dir: str) -> int:
     return total_frames
 
 
-# =============================================================================
-# STEP 3 — SSH connection
-# =============================================================================
 
 def create_ssh_client() -> paramiko.SSHClient:
     """Create and return an authenticated SSH client."""
@@ -227,9 +204,6 @@ def run_remote_command(client: paramiko.SSHClient, cmd: str, show_output: bool =
     return out
 
 
-# =============================================================================
-# STEP 4 — Upload frames to RunPod
-# =============================================================================
 
 def upload_frames(client: paramiko.SSHClient, local_frames_dir: str):
     """Upload extracted frames to the RunPod instance."""
@@ -261,9 +235,6 @@ def _scp_progress(filename, size, sent):
         print()
 
 
-# =============================================================================
-# STEP 5 — Run pipeline on RunPod
-# =============================================================================
 
 def run_remote_pipeline(client: paramiko.SSHClient):
     """Update config on pod and run pipeline_a.py."""
@@ -309,9 +280,6 @@ def run_remote_pipeline(client: paramiko.SSHClient):
     print_ok("Remote pipeline complete.")
 
 
-# =============================================================================
-# STEP 6 — Generate visualizations on RunPod
-# =============================================================================
 
 def generate_remote_visualizations(client: paramiko.SSHClient):
     """Run visualization script on the pod."""
@@ -359,9 +327,6 @@ print('Visualizations done.')
     print_ok("Visualizations generated.")
 
 
-# =============================================================================
-# STEP 7 — Download and organize results
-# =============================================================================
 
 def download_and_organize(client: paramiko.SSHClient, local_output: str):
     """Download results and organize into detected/not_detected folders."""
@@ -436,9 +401,6 @@ def download_and_organize(client: paramiko.SSHClient, local_output: str):
     return detected_count, not_detected_count
 
 
-# =============================================================================
-# MAIN
-# =============================================================================
 
 def parse_args():
     parser = argparse.ArgumentParser(

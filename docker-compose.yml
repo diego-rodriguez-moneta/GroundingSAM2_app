@@ -1,15 +1,9 @@
-# =============================================================================
-# docker-compose.yml — Smart Cooler Hybrid Pipeline
-# =============================================================================
-
 services:
   pipeline:
     build: .
     image: cooler-pipeline:latest
     container_name: cooler_pipeline
 
-    # Pass RunPod connection details as environment variables
-    # These override the values in app_config.py
     environment:
       - RUNPOD_HOST=${RUNPOD_HOST}
       - RUNPOD_PORT=${RUNPOD_PORT}
@@ -19,13 +13,8 @@ services:
       - VIDEO_SOURCE=${VIDEO_SOURCE:-local}
 
     volumes:
-      # Mount your local videos folder (read-only)
       - ${LOCAL_VIDEOS_DIR:-./videos}:/videos:ro
-      # Mount output folder (read-write)
       - ${LOCAL_OUTPUT_DIR:-./pipeline_output}:/output
-      # Mount SSH key (read-only)
       - ${SSH_KEY_PATH:-~/.ssh/keys}:/ssh/keys:ro
 
-    # Pass CLI arguments via PIPELINE_ARGS env variable
-    # e.g. PIPELINE_ARGS=--extract-only docker compose up
     command: ${PIPELINE_ARGS:-}
